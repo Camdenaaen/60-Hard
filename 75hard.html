@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="75 Hard">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#14161A">
+<title>75 Hard</title>
+<link rel="apple-touch-icon" href="icon75-180.png">
+<link rel="icon" type="image/png" href="icon75-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;500;600;700;800&display=swap">
+<style>
+/* Layout: dark steel header with day counter + 75-square grid, then a single column of check rows; tabs for Today / Progress */
+:root{
+  --bg:#EFEDE8; --surface:#FFFFFF; --ink:#14161A; --muted:#6A6F78; --line:#DAD7D0; --soft:#E6E3DC;
+  --steel:#14161A; --steel-ink:#F2F1EE; --accent:#2F5BEA; --accent-ink:#FFFFFF;
+  --good:#1E9E62; --good-soft:#DDF3E8; --bad:#D6453D; --bad-soft:#FBE3E1; --part:#E7A93A;
+  --display:"Bebas Neue",Impact,"Arial Narrow",sans-serif;
+  --body:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#0E0F12; --surface:#17191E; --ink:#ECEDEF; --muted:#9298A2; --line:#262A31; --soft:#1F2228;
+  --steel:#08090B; --steel-ink:#F2F1EE; --accent:#5B80FF; --accent-ink:#0A0F22;
+  --good:#3CCB88; --good-soft:#153A29; --bad:#FF6A60; --bad-soft:#3A1816; --part:#E7B04F; color-scheme:dark}}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.45 var(--body);-webkit-text-size-adjust:100%;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+[hidden]{display:none!important}
+.wrap{max-width:560px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{background:var(--steel);color:var(--steel-ink)}
+header .wrap{padding-block:20px 18px;display:grid;gap:14px}
+.eyebrow{font:700 12px var(--body);letter-spacing:.16em;text-transform:uppercase;opacity:.7}
+.top{display:flex;justify-content:space-between;align-items:flex-end;gap:12px}
+.top>div:first-child{min-width:0}
+.day{font:400 clamp(56px,18vw,96px)/.82 var(--display);letter-spacing:.01em;white-space:nowrap}
+.day small{font-size:.4em;opacity:.5}
+.navb{display:flex;gap:6px;flex:none}
+.navb button{appearance:none;width:42px;height:42px;border-radius:10px;border:1px solid rgb(255 255 255 / .22);background:transparent;color:var(--steel-ink);font-size:20px;cursor:pointer}
+.navb button:disabled{opacity:.3}
+.meta{display:flex;justify-content:space-between;gap:10px;font-size:13px;opacity:.85;flex-wrap:wrap}
+.grid{display:grid;grid-template-columns:repeat(15,1fr);gap:4px}
+.grid button{aspect-ratio:1;max-width:100%;border:0;border-radius:3px;padding:0;background:rgb(255 255 255 / .12);cursor:pointer}
+.grid .done{background:var(--good)} .grid .part{background:var(--part)} .grid .miss{background:var(--bad)}
+.grid .future{opacity:.35} .grid .sel{outline:2px solid var(--accent);outline-offset:1px}
+.quote{font:400 22px/1 var(--display);letter-spacing:.04em;opacity:.9}
+.tabs{display:flex;gap:6px;margin:16px 0 6px;background:var(--soft);padding:4px;border-radius:12px}
+.tabs button{flex:1;appearance:none;border:0;background:transparent;color:var(--muted);font:400 18px var(--display);letter-spacing:.08em;padding:9px;border-radius:9px;cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgb(0 0 0 / .1)}
+main{padding-bottom:80px}
+.stack{display:grid;gap:12px;margin-top:8px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;gap:12px;min-width:0}
+.card h2{margin:0;font:400 24px/1 var(--display);letter-spacing:.05em;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.card h2 span{font:700 12px var(--body);letter-spacing:0;color:var(--muted)}
+.banner{border-radius:14px;padding:14px 16px;font-weight:600;display:grid;gap:10px}
+.banner.ok{background:var(--good-soft);color:var(--good)}
+.banner.bad{background:var(--bad-soft);color:var(--bad)}
+.banner.info{background:var(--soft);color:var(--ink)}
+.row{display:grid;grid-template-columns:44px 1fr;gap:12px;align-items:center;padding:12px;border:1px solid var(--line);border-radius:12px;cursor:pointer;background:var(--surface)}
+.row .box{width:44px;height:44px;border-radius:10px;border:2px solid var(--line);display:grid;place-items:center;font:400 26px var(--display);color:transparent}
+.row.on{border-color:var(--good);background:var(--good-soft)}
+.row.on .box{background:var(--good);border-color:var(--good);color:#fff}
+.row b{display:block;font-weight:700}
+.row small{color:var(--muted);font-size:12.5px}
+.row input{position:absolute;opacity:0;pointer-events:none}
+.sub{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+label.f{display:grid;gap:5px;font:700 11px var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+input[type=text],input[type=number],input[type=date],textarea,select{font:500 16px var(--body);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:100%;min-width:0}
+textarea{min-height:80px;resize:vertical}
+input:focus-visible,textarea:focus-visible,button:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.jugs{display:grid;grid-template-columns:repeat(8,1fr);gap:6px}
+.jugs button{appearance:none;height:46px;border-radius:8px;border:2px solid var(--line);background:transparent;cursor:pointer;font:700 11px var(--body);color:var(--muted)}
+.jugs button.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn{appearance:none;border:0;background:var(--accent);color:var(--accent-ink);font:800 15px var(--body);padding:12px 18px;border-radius:12px;cursor:pointer}
+.btn.dark{background:var(--ink);color:var(--bg)}
+.btn.danger{background:var(--bad);color:#fff}
+.linkbtn{appearance:none;border:0;background:none;color:var(--muted);font:600 14px var(--body);text-decoration:underline;cursor:pointer;padding:6px}
+.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{background:var(--soft);border-radius:12px;padding:12px}
+.stat b{display:block;font:400 34px/1 var(--display);letter-spacing:.02em}
+.stat span{font-size:12px;color:var(--muted);font-weight:600}
+.list{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+.list li{display:flex;justify-content:space-between;gap:10px;font-size:14px;border-bottom:1px solid var(--line);padding-bottom:8px}
+.list li span:last-child{color:var(--muted);white-space:nowrap}
+.empty{color:var(--muted);font-size:14px;margin:0}
+.setup{min-height:100%;display:grid;place-items:center;padding-block:40px}
+.setup .card{max-width:440px;width:100%}
+.setup h1{margin:0;font:400 64px/.85 var(--display)}
+.rules{margin:0;padding-left:18px;color:var(--muted);font-size:14px;display:grid;gap:4px}
+@media (prefers-reduced-motion:no-preference){.row,.row .box{transition:background .15s,border-color .15s}}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips button{appearance:none;border:1.5px solid var(--line);background:transparent;color:var(--ink);font:700 14px var(--body);padding:10px 14px;border-radius:99px;cursor:pointer}
+.chips button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.stepper{display:grid;grid-template-columns:48px 1fr 48px;gap:8px;align-items:center}
+.stepper button{appearance:none;height:46px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:800 20px var(--body);cursor:pointer}
+.stepper output{text-align:center;font:400 38px/1 var(--display);letter-spacing:.02em}
+.stepper output small{font:700 13px var(--body);color:var(--muted)}
+.bar{height:6px;border-radius:99px;background:var(--soft);overflow:hidden}.bar i{display:block;height:100%;background:var(--accent)}.bar.ok i{background:var(--good)}
+.auto{font-size:13px;font-weight:700;color:var(--muted)}.auto.ok{color:var(--good)}
+.jugs{grid-template-columns:repeat(3,1fr)!important}.jugs button{height:56px!important;font-size:15px!important}
+.hm{display:flex;align-items:center;gap:6px}.hm input{text-align:center;width:76px!important}.hm em{font-style:normal;font-weight:800;color:var(--muted)}
+</style>
+</head><body>
+
+<section class="setup wrap" id="setup" hidden>
+  <div class="card">
+    <div class="eyebrow" style="color:var(--muted)">Let's go</div>
+    <h1>75 HARD</h1>
+    <p class="empty" style="color:var(--ink)">75 days. Every rule, every day. Miss one and you start over at Day 1.</p>
+    <ol class="rules">
+      <li>Work on the business 3+ hours</li>
+      <li>Eat healthy and eat enough</li>
+      <li>Never sit for more than an hour</li>
+      <li>Work out: run, gym, or anything else</li>
+      <li>Drink 3 liters of water</li>
+      <li>No bed rotting</li>
+      <li>Room and car always organized</li>
+      <li>Only spend money on food or payments</li>
+      <li>No weed</li>
+      <li>Meditate 10 minutes</li>
+      <li>Phone under 2 hours</li>
+    </ol>
+    <label class="f">Your name<input type="text" id="s-name" autocomplete="given-name" placeholder="Name"></label>
+    <label class="f">Start date (Day 1)<input type="date" id="s-start"></label>
+    <button class="btn" id="s-go">Start 75 Hard</button>
+  </div>
+</section>
+
+<div id="app" hidden>
+<header>
+  <div class="wrap">
+    <div class="top">
+      <div>
+        <div class="eyebrow" id="who">75 Hard</div>
+        <div class="day" id="day">DAY 1<small>/75</small></div>
+      </div>
+      <div class="navb"><button id="prev" aria-label="Previous day">‹</button><button id="next" aria-label="Next day">›</button></div>
+    </div>
+    <div class="meta"><span id="date"></span><span id="left"></span></div>
+    <div class="grid" id="grid" aria-label="All 75 days"></div>
+    <div class="quote">Build it. Every day.</div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="tabs" role="tablist">
+    <button role="tab" id="t-today" aria-selected="true">TODAY</button>
+    <button role="tab" id="t-prog" aria-selected="false">PROGRESS</button>
+  </div>
+
+  <section id="v-today" class="stack">
+    <div class="banner info" id="banner"></div>
+
+    <div class="card">
+      <h2>The business <span>3+ hours</span></h2>
+      <div class="stepper"><button id="biz-m" aria-label="Remove 1 hour">−</button><output id="biz-o">0 <small>hrs</small></output><button id="biz-p" aria-label="Add 1 hour">+</button></div>
+      <div class="bar" id="biz-bar"><i style="width:0"></i></div>
+      <label class="f">What I worked on<input type="text" id="biz-n" placeholder="Website, calls, product…"></label>
+    </div>
+
+    <div class="card">
+      <h2>Workout <span>pick one</span></h2>
+      <div class="chips" id="wo"></div>
+      <div class="sub">
+        <label class="f" id="wo-other-l" hidden>What I did<input type="text" id="wo-other" placeholder="Basketball, hike…"></label>
+        <label class="f">Minutes<input type="number" id="wo-min" inputmode="numeric" min="0" placeholder="45"></label>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Water <span id="l">0 / 3 L</span></h2>
+      <div class="jugs" id="jugs"></div>
+    </div>
+
+    <div class="card">
+      <h2>Phone <span>under 2 hours</span></h2>
+      <div class="actions">
+        <div class="hm"><input type="number" id="ph-h" inputmode="numeric" min="0" max="24" placeholder="0" aria-label="Screen time hours"><em>h</em><input type="number" id="ph-m" inputmode="numeric" min="0" max="59" placeholder="0" aria-label="Screen time minutes"><em>m</em></div>
+        <span class="auto" id="ph-s">Enter screen time tonight</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Body &amp; mind</h2>
+      <label class="row" data-k="eat"><input type="checkbox"><span class="box">✓</span><span><b>Ate healthy and enough</b><small>Fuel, not junk</small></span></label>
+      <label class="row" data-k="sit"><input type="checkbox"><span class="box">✓</span><span><b>Never sat more than an hour</b><small>Get up and move every hour</small></span></label>
+      <label class="row" data-k="bed"><input type="checkbox"><span class="box">✓</span><span><b>No bed rotting</b><small>Bed is for sleep</small></span></label>
+      <label class="row" data-k="med"><input type="checkbox"><span class="box">✓</span><span><b>Meditated 10 minutes</b><small>Quiet, no phone</small></span></label>
+      <label class="row" data-k="weed"><input type="checkbox"><span class="box">✓</span><span><b>No weed</b><small>Zero</small></span></label>
+    </div>
+
+    <div class="card">
+      <h2>Discipline</h2>
+      <label class="row" data-k="org"><input type="checkbox"><span class="box">✓</span><span><b>Room and car organized</b><small>Everything in its place</small></span></label>
+      <label class="row" data-k="money"><input type="checkbox"><span class="box">✓</span><span><b>Only spent on food or payments</b><small>No impulse buys</small></span></label>
+      <label class="f">Spent on (optional)<input type="text" id="spent" placeholder="Groceries $24, phone bill…"></label>
+    </div>
+
+    <div class="card">
+      <h2>Notes</h2>
+      <textarea id="notes" placeholder="How'd today go?"></textarea>
+    </div>
+  </section>
+
+  <section id="v-prog" class="stack" hidden>
+    <div class="card"><h2>Current run</h2><div class="stats" id="stats"></div></div>
+    <div class="card"><h2>Workouts</h2><ul class="list" id="wolist"></ul></div>
+    <div class="card"><h2>Past attempts</h2><ul class="list" id="attempts"></ul></div>
+    <div class="card">
+      <h2>Backup</h2>
+      <p class="empty" style="color:var(--ink)">Everything saves on this phone. Save a backup now and then so nothing gets lost.</p>
+      <div class="actions"><button class="btn" id="bsave">Save backup</button><label class="btn dark" for="bload">Restore</label><input type="file" id="bload" accept=".json,application/json" hidden></div>
+      <p class="empty" id="bmsg"></p>
+    </div>
+    <div class="card">
+      <h2>Settings</h2>
+      <label class="f">Name<input type="text" id="e-name"></label>
+      <div class="actions"><button class="linkbtn" id="restart">Restart at Day 1</button></div>
+      <div class="banner bad" id="confirm" hidden>
+        <span>Restart at Day 1 starting today? Your current run gets saved under Past attempts.</span>
+        <div class="actions"><button class="btn danger" id="yes">Yes, restart</button><button class="linkbtn" id="no">Cancel</button></div>
+      </div>
+    </div>
+  </section>
+</main>
+</div>
+
+<script>
+(function(){
+  const $=id=>document.getElementById(id), KEY="seventyfivehard", MS=864e5;
+  const TYPES=["Workout","Running","Gym","Other"];
+  const RULES=[
+    ["biz","Business 3 hrs",d=>(d.biz||0)>=3],
+    ["eat","Eat healthy",d=>!!d.eat],
+    ["sit","No sitting 1 hr+",d=>!!d.sit],
+    ["wo","Workout",d=>!!d.wo&&(d.wo!=="Other"||!!(d.woOther||"").trim())],
+    ["water","3 L water",d=>(d.L||0)>=3],
+    ["bed","No bed rotting",d=>!!d.bed],
+    ["org","Room & car",d=>!!d.org],
+    ["money","Money rule",d=>!!d.money],
+    ["weed","No weed",d=>!!d.weed],
+    ["med","Meditate",d=>!!d.med],
+    ["phone","Phone < 2 hrs",d=>d.ph!=null&&d.ph<=120],
+  ];
+  let S; try{ S=JSON.parse(localStorage.getItem(KEY)||"null"); }catch(e){ S=null; }
+  if(S && S.v!==2){ S=null; }
+  const save=()=>{ try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){} };
+  const parse=s=>{ const [y,m,d]=s.split("-").map(Number); return new Date(y,m-1,d); };
+  const iso=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+  const today0=()=>{ const t=new Date(); return new Date(t.getFullYear(),t.getMonth(),t.getDate()); };
+  const dateFor=n=>{ const s=parse(S.start); return new Date(s.getFullYear(),s.getMonth(),s.getDate()+n-1); };
+  const fmt=d=>d.toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"});
+  const todayNum=()=>Math.round((today0()-parse(S.start))/MS)+1;
+  const get=n=>S.days[n]||(S.days[n]={});
+  const score=n=>{ const d=S.days[n]; return d? RULES.filter(r=>r[2](d)).length:0; };
+  const complete=n=>score(n)===RULES.length;
+  const hm=m=>{ m=Math.round(m); return m>=60? Math.floor(m/60)+"h "+(m%60)+"m" : m+"m"; };
+  let sel=1;
+
+  function showSetup(){ $("setup").hidden=false; $("app").hidden=true; $("s-start").value=iso(today0()); $("s-name").focus(); }
+  $("s-go").onclick=()=>{ const name=$("s-name").value.trim(), start=$("s-start").value;
+    if(!name){ $("s-name").focus(); return; } if(!start) return;
+    S={v:2,name,start,days:{},attempts:[]}; save(); boot(); };
+
+  function firstMiss(){ const tn=todayNum(); for(let n=1;n<tn&&n<=75;n++) if(!complete(n)) return n; return 0; }
+
+  function render(){
+    const tn=todayNum(), miss=firstMiss(), d=get(sel);
+    $("who").textContent=S.name+"'s 75 Hard";
+    $("day").innerHTML="DAY "+sel+"<small>/75</small>";
+    $("date").textContent=fmt(dateFor(sel))+(sel===tn?" · Today":"");
+    let done=0; for(let n=1;n<=75;n++) if(complete(n)) done++;
+    $("left").textContent = tn>75 ? (done===75?"75/75. You did it.":done+" of 75 complete") : Math.max(0,75-tn)+" days left";
+    $("prev").disabled=sel<=1; $("next").disabled=sel>=75;
+    let g=""; for(let n=1;n<=75;n++){ const sc=score(n), c=[sc===RULES.length?"done":(n<tn)?"miss":sc?"part":"", n>tn?"future":"", n===sel?"sel":""].join(" ");
+      g+=`<button class="${c}" data-n="${n}" aria-label="Day ${n}, ${sc} of ${RULES.length}"></button>`; }
+    $("grid").innerHTML=g;
+    const b=$("banner"), left=RULES.filter(r=>!r[2](d)).map(r=>r[1]);
+    if(miss && sel>=miss){ b.className="banner bad"; b.innerHTML=`<span>Day ${miss} wasn't finished. 75 Hard rules: start over at Day 1.</span><div class="actions"><button class="btn danger" id="b-restart">Restart today</button><button class="linkbtn" id="b-fix">I finished it, fix Day ${miss}</button></div>`;
+      $("b-restart").onclick=()=>{ tab("prog"); $("confirm").hidden=false; $("confirm").scrollIntoView({block:"center"}); };
+      $("b-fix").onclick=()=>{ sel=miss; render(); scrollTo(0,0); }; }
+    else if(!left.length){ b.className="banner ok"; b.textContent=`Day ${sel} done. All 11 checked.`; }
+    else { b.className="banner info"; b.innerHTML=`<span><b>${sel===tn?"Still left today":sel<tn?"Not done":"To do"} (${RULES.length-left.length}/11):</b> ${left.join(" · ")}</span>`; }
+    document.querySelectorAll(".row").forEach(r=>{ const on=!!d[r.dataset.k]; r.classList.toggle("on",on); r.querySelector("input").checked=on; });
+    const biz=d.biz||0; $("biz-o").innerHTML=(biz%1?biz.toFixed(1):biz)+" <small>hrs</small>"; $("biz-bar").className="bar"+(biz>=3?" ok":""); $("biz-bar").firstElementChild.style.width=Math.min(100,biz/3*100)+"%";
+    $("wo").innerHTML=TYPES.map(t=>`<button aria-pressed="${d.wo===t}" data-t="${t}">${t}</button>`).join("");
+    $("wo-other-l").hidden=d.wo!=="Other";
+    const L=d.L||0; $("jugs").innerHTML=Array.from({length:3},(_,i)=>`<button class="${L>=(i+1)?"on":""}" data-j="${i+1}">${i+1} L</button>`).join(""); $("l").textContent=(L%1?L.toFixed(1):L)+" / 3 L";
+    const ps=$("ph-s"); if(d.ph==null){ ps.className="auto"; ps.textContent="Enter screen time tonight"; } else { const ok=d.ph<=120; ps.className="auto"+(ok?" ok":""); ps.textContent= ok? "✓ Under 2 hours" : "Over 2 hours"; ps.style.color=ok?"":"var(--bad)"; }
+    const setv=(id,v)=>{ if(document.activeElement!==$(id)) $(id).value=v??""; };
+    setv("biz-n",d.bizNote); setv("wo-other",d.woOther); setv("wo-min",d.woMin); setv("spent",d.spent); setv("notes",d.notes);
+    setv("ph-h",d.ph==null?"":Math.floor(d.ph/60)); setv("ph-m",d.ph==null?"":d.ph%60);
+    if(!$("v-prog").hidden) renderProg();
+  }
+  function renderProg(){
+    const tn=Math.min(todayNum(),75); let done=0,streak=0,biz=0,wmin=0,L=0,med=0,ph=[]; const types={};
+    for(let n=1;n<=75;n++){ const d=S.days[n]; if(!d) continue; if(complete(n)) done++; biz+=d.biz||0; wmin+=+d.woMin||0; L+=d.L||0; if(d.med) med++; if(d.ph!=null) ph.push(d.ph);
+      if(d.wo){ const k=d.wo==="Other"?((d.woOther||"").trim()||"Other"):d.wo; types[k]=(types[k]||0)+1; } }
+    for(let n=1;n<=tn;n++){ if(complete(n)) streak=n; else break; }
+    $("stats").innerHTML=[[streak,"Days in a row"],[done+"/75","Days complete"],[(biz%1?biz.toFixed(1):biz)+" h","Business hours"],[hm(wmin),"Workout time"],[L.toFixed(1)+" L","Water"],[med,"Days meditated"],[ph.length?hm(ph.reduce((a,b)=>a+b,0)/ph.length):"—","Avg phone time"],[Math.max(0,75-todayNum()),"Days to go"]]
+      .map(([a,b])=>`<div class="stat"><b>${a}</b><span>${b}</span></div>`).join("");
+    const t=Object.entries(types).sort((a,b)=>b[1]-a[1]); $("wolist").innerHTML=t.length?"":`<li class="empty">Pick a workout on the Today tab.</li>`;
+    t.forEach(([k,c])=>{ const li=document.createElement("li"), a=document.createElement("span"), b=document.createElement("span"); a.textContent=k; b.textContent=c+(c===1?" day":" days"); li.append(a,b); $("wolist").append(li); });
+    $("attempts").innerHTML = S.attempts.length? S.attempts.map((a,i)=>`<li><span>Attempt ${i+1} · started ${fmt(parse(a.start))}</span><span>${a.reached} day${a.reached===1?"":"s"} done</span></li>`).join("") : `<li class="empty">None yet. Keep it that way.</li>`;
+    $("e-name").value=S.name;
+  }
+
+  $("prev").onclick=()=>{ if(sel>1){ sel--; render(); } };
+  $("next").onclick=()=>{ if(sel<75){ sel++; render(); } };
+  $("grid").onclick=e=>{ const n=+e.target.dataset.n; if(n){ sel=n; render(); } };
+  function tab(t){ $("t-today").setAttribute("aria-selected",t==="today"); $("t-prog").setAttribute("aria-selected",t==="prog"); $("v-today").hidden=t!=="today"; $("v-prog").hidden=t!=="prog"; render(); }
+  $("t-today").onclick=()=>tab("today"); $("t-prog").onclick=()=>tab("prog");
+  document.querySelectorAll(".row").forEach(r=>r.addEventListener("click",e=>{ e.preventDefault(); const d=get(sel), k=r.dataset.k; d[k]=!d[k]; save(); render(); }));
+  const step=delta=>()=>{ const d=get(sel); d.biz=Math.max(0,Math.min(16,(d.biz||0)+delta)); save(); render(); };
+  $("biz-p").onclick=step(1); $("biz-m").onclick=step(-1);
+  $("wo").onclick=e=>{ const t=e.target.dataset.t; if(!t) return; const d=get(sel); d.wo = d.wo===t? null : t; save(); render(); if(d.wo==="Other") $("wo-other").focus(); };
+  $("jugs").onclick=e=>{ const j=+e.target.dataset.j; if(!j) return; const d=get(sel), v=j; d.L = d.L===v? v-1 : v; save(); render(); };
+  const field=(id,k,num)=>$(id).addEventListener("input",e=>{ const d=get(sel); d[k]= num? (e.target.value===""?null:Math.max(0,parseInt(e.target.value)||0)) : e.target.value; save(); render(); });
+  field("biz-n","bizNote"); field("wo-other","woOther"); field("wo-min","woMin",1); field("spent","spent"); field("notes","notes");
+  const phone=()=>{ const d=get(sel), h=$("ph-h").value, m=$("ph-m").value; d.ph=(h===""&&m==="")? null : (Math.max(0,parseInt(h)||0)*60 + Math.min(59,Math.max(0,parseInt(m)||0))); save(); render(); };
+  $("ph-h").addEventListener("input",phone); $("ph-m").addEventListener("input",phone);
+  $("e-name").addEventListener("input",e=>{ S.name=e.target.value.trim()||S.name; save(); $("who").textContent=S.name+"'s 75 Hard"; });
+  $("restart").onclick=()=>{ $("confirm").hidden=false; };
+  $("no").onclick=()=>{ $("confirm").hidden=true; };
+  $("yes").onclick=()=>{ let reached=0; for(let n=1;n<=75;n++){ if(complete(n)) reached=n; else break; }
+    S.attempts.push({start:S.start,reached,days:S.days}); S.start=iso(today0()); S.days={}; save(); $("confirm").hidden=true; sel=1; tab("today"); scrollTo(0,0); };
+  $("bsave").onclick=()=>{ try{ const b=new Blob([JSON.stringify({app:"75hard",saved:new Date().toISOString(),state:S},null,1)],{type:"application/json"}), u=URL.createObjectURL(b), a=document.createElement("a");
+      a.href=u; a.download="75-hard-backup-"+iso(today0())+".json"; document.body.append(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(u),4000); $("bmsg").textContent="Backup saved. Keep it in Files or iCloud Drive."; }
+    catch(e){ $("bmsg").textContent="Couldn't save a backup here."; } };
+  $("bload").addEventListener("change",async e=>{ const f=e.target.files&&e.target.files[0]; e.target.value=""; if(!f) return;
+    try{ const o=JSON.parse(await f.text()); if(!o||!o.state||!o.state.start) throw 0; S=o.state; S.v=2; S.days=S.days||{}; S.attempts=S.attempts||[]; save(); boot(); $("bmsg").textContent="Backup restored."; }
+    catch(_){ $("bmsg").textContent="That isn't a 75 Hard backup file."; } });
+  document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible" && S) render(); });
+
+  function boot(){ $("setup").hidden=true; $("app").hidden=false; sel=Math.max(1,Math.min(75,todayNum())); render(); }
+  if(S&&S.start) boot(); else showSetup();
+})();
+</script>
+</body></html>
